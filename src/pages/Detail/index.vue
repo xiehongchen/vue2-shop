@@ -1,36 +1,37 @@
 <template>
   <div class="detail">
     <!-- 商品分类导航 -->
-    <typeNav />
+    <TypeNav />
 
     <!-- 主要内容区域 -->
     <section class="con">
-      <!-- 导航路径区域 -->
+      <!-- 导航路径区域:面包屑 -->
       <div class="conPoin">
-        <span v-show="categoryView.category1Name">{{
-          categoryView.category1Name
-        }}</span>
-        <span v-show="categoryView.category2Name">{{
-          categoryView.category2Name
-        }}</span>
-        <span v-show="categoryView.category3Name">{{
-          categoryView.category3Name
-        }}</span>
+        <!-- 程序的警告:categoryView是undefined,它是vuex给的 -->
+        <span>{{ categoryView.category1Name }}</span>
+        <span>{{ categoryView.category2Name }}</span>
+        <span>{{ categoryView.category3Name }}</span>
       </div>
       <!-- 主要内容区域 -->
       <div class="mainCon">
         <!-- 左侧放大镜区域 -->
         <div class="previewWrap">
           <!--放大镜效果-->
-          <Zoom :skuImageList="skuImageList" />
+          <Zoom />
           <!-- 小图列表 -->
-          <ImageList :skuImageList="skuImageList" />
+          <ImageList />
         </div>
         <!-- 右侧选择区域布局 -->
         <div class="InfoWrap">
           <div class="goodsDetail">
-            <h3 class="InfoName">{{ skuInfo.skuName }}</h3>
-            <p class="news">{{ skuInfo.skuDesc }}</p>
+            <!-- 商品名称 -->
+            <h3 class="InfoName">
+              {{ skuInfo.skuName }}
+            </h3>
+            <!-- 商品信息 -->
+            <p class="news">
+              {{ skuInfo.skuDesc }}
+            </p>
             <div class="priceArea">
               <div class="priceArea1">
                 <div class="title">
@@ -38,12 +39,14 @@
                 </div>
                 <div class="price">
                   <i>¥</i>
+                  <!-- 商品价格 -->
                   <em>{{ skuInfo.price }}</em>
                   <span>降价通知</span>
                 </div>
                 <div class="remark">
                   <i>累计评价</i>
-                  <em>65545</em>
+                  <!--代表的是某一个数字的多少幂-->
+                  <em>{{ skuInfo.id ** 2 }}</em>
                 </div>
               </div>
               <div class="priceArea2">
@@ -52,9 +55,7 @@
                 </div>
                 <div class="fixWidth">
                   <i class="red-bg">加价购</i>
-                  <em class="t-gray"
-                    >满999.00另加20.00元，或满1999.00另加30.00元，或满2999.00另加40.00元，即可在购物车换购热销商品</em
-                  >
+                  <em class="t-gray">{{ skuInfo.createTime }}</em>
                 </div>
               </div>
             </div>
@@ -77,57 +78,56 @@
           <div class="choose">
             <div class="chooseArea">
               <div class="choosed"></div>
+              <!--这里是商品销售属性的地方-->
               <dl
-                v-for="(spuSaleAttr, index) in spuSaleAttrList"
-                :key="spuSaleAttr.id"
+                v-for="(saleAttr, index) in spuSaleAttrList"
+                :key="saleAttr.id"
               >
-                <dt class="title">{{ spuSaleAttr.saleAttrName }}</dt>
+                <dt class="title">{{ saleAttr.saleAttrName }}</dt>
+                <!--每一个销售属性的属性值的地方-->
                 <dd
                   changepirce="0"
-                  :class="{ active: spuSaleAttrValue.isChecked == 1 }"
-                  v-for="(spuSaleAttrValue,
-                  index) in spuSaleAttr.spuSaleAttrValueList"
-                  :key="spuSaleAttrValue.id"
+                  :class="{ active: saleAttrValue.isChecked == 1 }"
+                  v-for="(
+                    saleAttrValue, index
+                  ) in saleAttr.spuSaleAttrValueList"
+                  :key="saleAttrValue.id"
                   @click="
-                    changeActive(
-                      spuSaleAttrValue,
-                      spuSaleAttr.spuSaleAttrValueList
-                    )
+                    changeChecked(saleAttrValue, saleAttr.spuSaleAttrValueList)
                   "
                 >
-                  {{ spuSaleAttrValue.saleAttrValueName }}
+                  {{ saleAttrValue.saleAttrValueName }}
                 </dd>
               </dl>
             </div>
             <div class="cartWrap">
+              <!-- 购物商品个数的操作地方 -->
               <div class="controls">
-                <input
+                <input 
                   autocomplete="off"
                   class="itxt"
+                  type="number"
                   v-model="skuNum"
-                  @change="changeSkuNum"
+                  @change="handler"
                 />
+                <!-- 加1 -->
                 <a href="javascript:" class="plus" @click="skuNum++">+</a>
-                <a
-                  href="javascript:"
-                  class="mins"
-                  @click="skuNum > 1 ? skuNum-- : (skuNum = 1)"
-                  >-</a
+                <!-- 减1 -->
+                <a href="javascript:" class="mins" @click="skuNum > 1 ? skuNum-- : 1">-</a
                 >
               </div>
               <div class="add">
-                <!-- 以前咱们的路由跳转：从A路由跳转到B路由，这里在加入购物车，进行路由跳转之前，发请求
-                    把你购买的产品的信息通过请求的形式通知服务器，服务器进行相应的存储
-                  -->
-                <a @click="addShopcar">加入购物车</a>
+                <!--点击加入购物车按钮:不能用声明式导航,第一个：要发请求（有业务）-->
+                <a @click="addOrUpdateCart">加入购物车</a>
               </div>
             </div>
           </div>
         </div>
       </div>
     </section>
-
-    <!-- 内容详情页 -->
+ 
+    
+    <!-- 内容详情页，下方静态显示 -->
     <section class="product-detail">
       <aside class="aside">
         <div class="tabWraped">
@@ -290,9 +290,7 @@
             </ul>
             <div class="result">
               <div class="num">已选购0件商品</div>
-              <div class="price-tit">
-                套餐价
-              </div>
+              <div class="price-tit">套餐价</div>
               <div class="price">￥5299</div>
               <button class="addshopcar">加入购物车</button>
             </div>
@@ -301,29 +299,19 @@
         <div class="intro">
           <ul class="tab-wraped">
             <li class="active">
-              <a href="###">
-                商品介绍
-              </a>
+              <a href="###"> 商品介绍 </a>
             </li>
             <li>
-              <a href="###">
-                规格与包装
-              </a>
+              <a href="###"> 规格与包装 </a>
             </li>
             <li>
-              <a href="###">
-                售后保障
-              </a>
+              <a href="###"> 售后保障 </a>
             </li>
             <li>
-              <a href="###">
-                商品评价
-              </a>
+              <a href="###"> 商品评价 </a>
             </li>
             <li>
-              <a href="###">
-                手机社区
-              </a>
+              <a href="###"> 手机社区 </a>
             </li>
           </ul>
           <div class="tab-content">
@@ -372,12 +360,13 @@
 <script>
 import ImageList from "./ImageList/ImageList";
 import Zoom from "./Zoom/Zoom";
+//通过辅助函数获取数据
 import { mapGetters } from "vuex";
 export default {
   name: "Detail",
   data() {
     return {
-      //购买产品的个数
+      //控制商品购买个数
       skuNum: 1,
     };
   },
@@ -386,60 +375,63 @@ export default {
     Zoom,
   },
   mounted() {
-    //派发action获取产品详情的信息
-    this.$store.dispatch("getGoodInfo", this.$route.params.skuid);
+    //派发action:详情模块发请求需要携带商品的id
+    this.$store.dispatch("getDetailInfo", this.$route.params.skuId);
+    // console.log("我是详情页的mounted,发请求获取详情的数据");
   },
   computed: {
     ...mapGetters(["categoryView", "skuInfo", "spuSaleAttrList"]),
-    //给子组件的数据
-    skuImageList() {
-      //如果服务器数据没有回来，skuInfo这个对象是空对象
-      return this.skuInfo.skuImageList || [];
-    },
   },
   methods: {
-    //产品的售卖属性值切换高亮
-    changeActive(saleAttrValue, arr) {
-      //遍历全部售卖属性值isChecked为零没有高亮了
+    changeChecked(saleAttrValue, arr) {
+      // console.log(this.skuInfo);
+      //响应式数据:对象、数组
+      //数组的响应式数据:变更、替换【基本类型数据、引用类型对象响应式的】
+      //数组里面是基本类型数据：替换、变更    如果对象，不管你怎么玩都是相应的!!!!
+      //排他操作
+      //底下的代码:修改数组里面的对象【相应的式的】,数据变化视图跟这变化！！！
       arr.forEach((item) => {
-        item.isChecked = 0;
+        item.isChecked = "0";
       });
-      //点击的那个售卖属性值变为1
-      saleAttrValue.isChecked = 1;
+      saleAttrValue.isChecked = "1";
     },
-    //表单元素修改产品个数
-    changeSkuNum(event) {
-      //用户输入进来的文本 * 1
-      let value = event.target.value * 1;
-      //如果用户输入进来的非法,出现NaN或者小于1
+    //数量的表单元素的change回调
+    handler(e) {
+      //通过event事件对象获取用户输入内容[用户输入的内容一定是字符串类型的数据]
+      let value = e.target.value * 1;
+      //用户输入进来非法情况判断
       if (isNaN(value) || value < 1) {
         this.skuNum = 1;
       } else {
-        //正常大于1【大于1整数不能出现小数】
+        //正常情况，一般救在input设置输入类型 type="number"
         this.skuNum = parseInt(value);
       }
     },
-    //加入购物车
-    async addShopcar() {
-      //1:在点击加入购物车这个按钮的时候，做的第一件事情，将参数带给服务器（发请求），通知服务器加入购车的产品是谁
-      //this.$store.dispatch('addOrUpdateShopCart'),说白了，它是在调用vuex仓库中的这个addOrUpdateShopCart函数。
-      //2:你需要知道这次请求成功还是失败，如果成功进行路由跳转，如果失败，需要给用户提示
+    //加入购物车按钮
+    async addOrUpdateCart() {
+      //派发action:携带的载荷，分别商品的id、商品个数
+      //思考底下的这行代码实质做了一个什么事情?
+      //实质就是调用了小仓库里面相应的这个函数->addOrUpdateCart,声明部分加上asyc,这个函数执行的结构一定是Promise
+      //返回结果是一个Promise对象【三种状态:pending、成功、失败】，返回状态到底是什么，取决于这个函数addOrUpdateCart返回结果
       try {
-        //成功
-        await this.$store.dispatch("addOrUpdateShopCart", {
-          skuId: this.$route.params.skuid,
+        //成功干什么
+        await this.$store.dispatch("addOrUpdateCart", {
+          skuId: this.$route.params.skuId,
           skuNum: this.skuNum,
         });
-        //3:进行路由跳转
-        //4:在路由跳转的时候还需要将产品的信息带给下一级的路由组件
-        //一些简单的数据skuNum，通过query形式给路由组件传递过去
-        //产品信息的数据【比较复杂:skuInfo】,通过会话存储（不持久化,会话结束数据在消失）
-        //本地存储|会话存储，一般存储的是字符串
-        sessionStorage.setItem("SKUINFO",JSON.stringify(this.skuInfo));
-        this.$router.push({name:'addcartsuccess',query:{skuNum:this.skuNum}});
+        //路由跳转:携带参数,携带参数一般都是基本类型数据【字符串、数字等等】，引用类型数据白扯【传递过来路由获取不到】！！！
+        //浏览器存储功能，在路由跳转在之前，存储到浏览器中
+        //在下一级路由跳转时需要携带商品信息，不过push会不好看，因此可以直接sessionStorage保存数据
+        // 会话存储，窗口关闭之后会销毁
+        sessionStorage.setItem('SKUINFO',JSON.stringify(this.skuInfo));
+        //路由跳转
+        this.$router.push({
+          path: "/addcartsuccess",
+          query: { skuNum: this.skuNum},
+        });
       } catch (error) {
-        //失败
-        alert(error.message);
+        //失败干什么
+        alert("加入购物车失败");
       }
     },
   },

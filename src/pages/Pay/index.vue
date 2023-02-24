@@ -1,91 +1,94 @@
 <template>
-  <div class="pay-main">
-    <el-button type="primary" icon="el-icon-phone">测试</el-button>
-    <div class="pay-container">
-      <div class="checkout-tit">
-        <h4 class="tit-txt">
-          <span class="success-icon"></span>
-          <span class="success-info"
-            >订单提交成功，请您及时付款，以便尽快为您发货~~</span
-          >
-        </h4>
-        <div class="paymark">
-          <span class="fl"
-            >请您在提交订单<em class="orange time">4小时</em
-            >之内完成支付，超时订单会自动取消。订单号：<em>{{
-              orderId
-            }}</em></span
-          >
-          <span class="fr"
-            ><em class="lead">应付金额：</em
-            ><em class="orange money">￥{{ payInfo.totalFee }}</em></span
-          >
+  <div>
+    <div class="pay-main">
+      <div class="pay-container">
+        <div class="checkout-tit">
+          <h4 class="tit-txt">
+            <span class="success-icon"></span>
+            <span class="success-info"
+              >订单提交成功，请您及时付款，以便尽快为您发货~~</span
+            >
+          </h4>
+          <div class="paymark">
+            <span class="fl"
+              >请您在提交订单<em class="orange time">4小时</em
+              >之内完成支付，超时订单会自动取消。订单号：<em>{{
+                payInfo.orderId
+              }}</em></span
+            >
+            <span class="fr"
+              ><em class="lead">应付金额：</em
+              ><em class="orange money">￥{{ payInfo.totalFee }}</em></span
+            >
+          </div>
         </div>
-      </div>
-      <div class="checkout-info">
-        <h4>重要说明：</h4>
-        <ol>
-          <li>
-            尚品汇商城支付平台目前支持<span class="zfb">支付宝</span>支付方式。
-          </li>
-          <li>其它支付渠道正在调试中，敬请期待。</li>
-          <li>为了保证您的购物支付流程顺利完成，请保存以下支付宝信息。</li>
-        </ol>
-        <h4>
-          支付宝账户信息：（很重要，<span class="save">请保存！！！</span>）
-        </h4>
-        <ul>
-          <li>支付帐号：11111111</li>
-          <li>密码：111111</li>
-          <li>支付密码：111111</li>
-        </ul>
-      </div>
-      <div class="checkout-steps">
-        <div class="step-tit">
-          <h5>支付平台</h5>
-        </div>
-        <div class="step-cont">
-          <ul class="payType">
-            <li><img src="./images/pay2.jpg" /></li>
-            <li><img src="./images/pay3.jpg" /></li>
+        <div class="checkout-info">
+          <h4>重要说明：</h4>
+          <ol>
+            <li>
+              尚品汇商城支付平台目前支持<span class="zfb">支付宝</span
+              >支付方式。
+            </li>
+            <li>其它支付渠道正在调试中，敬请期待。</li>
+            <li>为了保证您的购物支付流程顺利完成，请保存以下支付宝信息。</li>
+          </ol>
+          <h4>
+            支付宝账户信息：（很重要，<span class="save">请保存！！！</span>）
+          </h4>
+          <ul>
+            <li>支付帐号：11111111</li>
+            <li>密码：111111</li>
+            <li>支付密码：111111</li>
           </ul>
         </div>
-        <div class="hr"></div>
-
-        <div class="payshipInfo">
+        <div class="checkout-steps">
           <div class="step-tit">
-            <h5>支付网银</h5>
+            <h5>支付平台</h5>
           </div>
           <div class="step-cont">
             <ul class="payType">
-              <li><img src="./images/pay10.jpg" /></li>
-              <li><img src="./images/pay11.jpg" /></li>
-              <li><img src="./images/pay12.jpg" /></li>
-              <li><img src="./images/pay13.jpg" /></li>
-              <li><img src="./images/pay14.jpg" /></li>
-              <li><img src="./images/pay15.jpg" /></li>
-              <li><img src="./images/pay16.jpg" /></li>
-              <li><img src="./images/pay17.jpg" /></li>
-              <li><img src="./images/pay18.jpg" /></li>
-              <li><img src="./images/pay19.jpg" /></li>
-              <li><img src="./images/pay20.jpg" /></li>
-              <li><img src="./images/pay21.jpg" /></li>
-              <li><img src="./images/pay22.jpg" /></li>
+              <li><img src="./images/pay2.jpg" /></li>
+              <li><img src="./images/pay3.jpg" /></li>
             </ul>
           </div>
-        </div>
-        <div class="hr"></div>
+          <div class="hr"></div>
 
-        <div class="submit">
-          <a class="btn" @click="open">立即支付</a>
-        </div>
-        <div class="otherpay">
-          <div class="step-tit">
-            <h5>其他支付方式</h5>
+          <div class="payshipInfo">
+            <div class="step-tit">
+              <h5>支付网银</h5>
+            </div>
+            <div class="step-cont">
+              <ul class="payType">
+                <li><img src="./images/pay10.jpg" /></li>
+                <li><img src="./images/pay11.jpg" /></li>
+                <li><img src="./images/pay12.jpg" /></li>
+                <li><img src="./images/pay13.jpg" /></li>
+                <li><img src="./images/pay14.jpg" /></li>
+                <li><img src="./images/pay15.jpg" /></li>
+                <li><img src="./images/pay16.jpg" /></li>
+                <li><img src="./images/pay17.jpg" /></li>
+                <li><img src="./images/pay18.jpg" /></li>
+                <li><img src="./images/pay19.jpg" /></li>
+                <li><img src="./images/pay20.jpg" /></li>
+                <li><img src="./images/pay21.jpg" /></li>
+                <li><img src="./images/pay22.jpg" /></li>
+              </ul>
+            </div>
           </div>
-          <div class="step-cont">
-            <span><a href="weixinpay.html" target="_blank">微信支付</a></span>
-            <span>中国银联</span>
+          <div class="hr"></div>
+
+          <div class="submit">
+            <!--立即支付按钮:  -->
+            <a class="btn" @click="open">立即支付</a>
+          </div>
+          <div class="otherpay">
+            <div class="step-tit">
+              <h5>其他支付方式</h5>
+            </div>
+            <div class="step-cont">
+              <span><a href="weixinpay.html" target="_blank">微信支付</a></span>
+              <span>中国银联</span>
+            </div>
           </div>
         </div>
       </div>
@@ -94,100 +97,95 @@
 </template>
 
 <script>
+//引入二维码插件
 import QRCode from "qrcode";
 export default {
   name: "Pay",
   data() {
     return {
+      //支付相关信息:支付钱数、订单号、二维码地址
       payInfo: {},
-      timer: null,
-      //支付状态码
       code: "",
+      timer:null
     };
   },
-  computed: {
-    orderId() {
-      return this.$route.query.orderId;
-    },
-  },
-  //工作的时候：尽量别再生命周期函数中async|await
+  //组件挂载完毕，获取支付相关信息
   mounted() {
+    //获取支付信息
     this.getPayInfo();
+    console.log(this,'pay');
   },
   methods: {
+    //立即支付按钮
+    async open() {
+      //生成一个二维码URL
+      let url = await QRCode.toDataURL(this.payInfo.codeUrl);
+      console.log(url);
+      //第一个参数:即为内容区域
+      //第二个参数:标题
+      //第三个参数:组件的配置项
+      this.$alert(`<img src=${url}>`, "请你微信扫码支付", {
+        dangerouslyUseHTMLString: true, //将字符串转换为标签
+        center: true, //居中
+        showClose: false, //右上角的关闭按钮不显示
+        confirmButtonText: "支付成功", //确定按钮的文本
+        showCancelButton: true, //显示取消按钮
+        cancelButtonText: "支付遇见问题", //取消按钮的文本
+        closeOnClickModal: true, //点击遮罩层关闭messagebox
+        beforeClose:(action, instance, done)=>{ //在消息盒子关闭之前会触发
+           //action参数:可以区分用户点击的是取消【cancel】、确定【confirm】
+           //instance参数:当前消息框组件VC
+           //done参数：是一个函数,函数可以关闭消息盒子
+           if(action=='confirm' && this.code==200){
+              //清除定时器
+              clearInterval(this.timer);
+              //关闭盒子
+              done();
+              //路由跳转
+              this.$router.push('/paysuccess');
+           }else if(action=='cancel' && this.code!=200){
+               //清除定时器
+              clearInterval(this.timer);
+              //关闭盒子
+              done();
+              this.$message.error('支付遇见问题请联系超管豪哥');
+           }
+        }
+      });
+      //查询支付结果,开启定时器每隔一段时间询问支付结果
+     this.timer  = setInterval(async () => {
+        //发请求获取支付结果
+        // 这个直接在组件发请求，不需要经过vuex
+        let result = await this.$http.reqPayResult(this.payInfo.orderId);
+        //返回数据当中：code=200代表支付成功  code=205未支付
+        if (result.code == 200) {
+          //支付成功了
+          //存储一下支付成功的code数值，通过他判断支付是否成功
+          this.code = result.code;
+          //清除定时器
+          clearInterval(this.timer);
+          //关闭messagebox
+          this.$msgbox.close(); 
+          //在路由跳转
+          this.$router.push('/paySuccess');
+        } else {
+          //未支付
+          this.code = result.code;
+          // this.$router.push('/paySuccess');
+        }
+      }, 1000);
+    },
     //获取支付信息
     async getPayInfo() {
-      let result = await this.$API.reqPayInfo(this.orderId);
-      //如果成功：组件当中存储支付信息
+      let result = await this.$http.reqPayInfo(this.$route.query.orderId);
       if (result.code == 200) {
         this.payInfo = result.data;
-      }
-    },
-    //弹出框
-    async open() {
-      //生成二维(地址)
-      let url = await QRCode.toDataURL(this.payInfo.codeUrl);
-      this.$alert(`<img src=${url} />`, "请你微信支付", {
-        dangerouslyUseHTMLString: true,
-        //中间布局
-        center: true,
-        //是否显示取消按钮
-        showCancelButton: true,
-        //取消按钮的文本内容
-        cancelButtonText: "支付遇见问题",
-        //确定按钮的文本
-        confirmButtonText: "已支付成功",
-        //右上角的叉子没了
-        showClose: false,
-        //关闭弹出框的配置值
-        beforeClose: (type, instance, done) => {
-          //type:区分取消|确定按钮
-          //instance：当前组件实例
-          //done:关闭弹出框的方法
-          if (type == "cancel") {
-            alert("请联系管理员豪哥");
-            //清除定时器
-            clearInterval(this.timer);
-            this.timer = null;
-            //关闭弹出框
-            done();
-          } else {
-            //判断是否真的支付了
-            //开发人员：为了自己方便，这里判断先不要了
-            // if (this.code == 200) {
-              clearInterval(this.timer);
-              this.timer = null;
-              done();
-              this.$router.push("/paysuccess");
-            // }
-          }
-        },
-      });
-      //你需要知道支付成功|失败
-      //支付成功，路由的跳转，如果支付失败，提示信息
-      //定时器没有，开启一个新的定时器
-      if (!this.timer) {
-        this.timer = setInterval(async () => {
-          //发请求获取用户支付状态
-          let result = await this.$API.reqPayStatus(this.orderId);
-          //如果code==200
-          if (result.code == 200) {
-            //第一步：清除定时器
-            clearInterval(this.timer);
-            this.timer = null;
-            //保存支付成功返回的code
-            this.code = result.code;
-            //关闭弹出框
-            this.$msgbox.close();
-            //跳转到下一路由
-            this.$router.push("/paysuccess");
-          }
-        }, 1000);
       }
     },
   },
 };
 </script>
+
 
 <style lang="less" scoped>
 .pay-main {

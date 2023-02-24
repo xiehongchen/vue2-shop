@@ -1,34 +1,32 @@
 <template>
   <div>
-    <Header />
-    <!-- 路由组件出口的地方 -->
+    <Header></Header>
+    <!-- 路由组件出口的位置:不设置路由组件不知道在哪里显示 -->
     <router-view></router-view>
-    <!-- 在Home与Search可见的，但是Login|Register不可见 -->
-    <!-- 利用路由元信息解决当前问题好处：一行代码就可以解决 -->
-    <Footer v-show="$route.meta.isShow" />
+    <!-- 发现底部的Footer会随着路由的变化进行显示与隐藏 -->
+    <Footer v-show="$route.meta.show"></Footer>
+    <!-- 分页器务必知道四个条件:total pageSize pageNo pagerCount -->
   </div>
 </template>
 
 <script>
-//引入Header与Footer非路由组件
-import Header from "./components/Header";
-import Footer from "./components/Footer";
 export default {
   name: "",
   data() {
     return {
-      msg: "abc"
-    }
-  },
-  components: {
-    Header,
-    Footer,
+      searchParams: {
+        pageNo: 6,
+        pageSize: 3,
+      },
+    };
   },
   mounted() {
-    //派发一个action||获取商品分类的三级列表的数据
-    this.$store.dispatch("getCategoryList");
+    //App的根组件挂载完毕,发一次请求即可.
+    this.$store.dispatch("getCategory");
   },
+
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+</style>

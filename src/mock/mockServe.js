@@ -1,10 +1,14 @@
-//先引入mockjs模块
+//引入mockjs插件开始模拟数据
 import Mock from 'mockjs';
-//把JSON数据格式引入进来[JSON数据格式根本没有对外暴露，但是可以引入]
-//webpack默认对外暴露的：图片、JSON数据格式
+//引入数据：JSON数据格式数据
+//比如:图片资源、JSON资源【里面不能书写export关键字】，这些资源默认对外暴露【默认暴露】
 import banner from './banner.json';
 import floor from './floor.json';
 
-//mock数据:第一个参数请求地址   第二个参数：请求数据
-Mock.mock("/mock/banner",{code:200,data:banner});//模拟首页大的轮播图的数据
-Mock.mock("/mock/floor",{code:200,data:floor});
+//接口:相当于nodejs里面中间件
+//第一个参数：接口的地址 第二个参数:向这个接口发请求获取到的数据 
+//Mock插件：中间件默认是GET请求
+Mock.mock("/mock/banner", { code: 200, data: banner });
+//Mock插件：中间件默认是GET请求
+Mock.mock('/mock/floor', { code: 200, data: floor });
+

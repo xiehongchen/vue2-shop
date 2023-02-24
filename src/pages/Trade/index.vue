@@ -1,27 +1,29 @@
 <template>
   <div class="trade-container">
     <h3 class="title">填写并核对订单信息</h3>
+
     <div class="content">
+      <!-- 收件人信息地方 -->
       <h5 class="receive">收件人信息</h5>
       <div
         class="address clearFix"
-        v-for="(address, index) in addressInfo"
-        :key="address.id"
+        v-for="(user, index) in address"
+        :key="user.id"
       >
-        <span class="username " :class="{ selected: address.isDefault == 1 }">{{
-          address.consignee
+        <span class="username" :class="{ selected: user.isDefault == '1' }">{{
+          user.consignee
         }}</span>
-        <p @click="changeDefault(address, addressInfo)">
-          <span class="s1">{{ address.fullAddress }}</span>
-          <span class="s2">{{ address.phoneNum }}</span>
-          <span class="s3" v-show="address.isDefault == 1">默认地址</span>
+        <p @click="changeDefault(user)">
+          <span class="s1">{{ user.fullAddress }}</span>
+          <span class="s2">{{ user.phoneNum }}</span>
+          <span class="s3" v-show="user.isDefault == '1'">默认地址</span>
         </p>
       </div>
       <div class="line"></div>
       <h5 class="pay">支付方式</h5>
       <div class="address clearFix">
         <span class="username selected">在线支付</span>
-        <span class="username" style="margin-left:5px;">货到付款</span>
+        <span class="username" style="margin-left: 5px">货到付款</span>
       </div>
       <div class="line"></div>
       <h5 class="pay">送货清单</h5>
@@ -32,24 +34,27 @@
           <p>配送时间：预计8月10日（周三）09:00-15:00送达</p>
         </div>
       </div>
+      <!-- 商品清单：购物车里面的数据 -->
       <div class="detail">
         <h5>商品清单</h5>
         <ul
           class="list clearFix"
-          v-for="(order, index) in orderInfo.detailArrayList"
-          :key="order.skuId"
+          v-for="(shop, index) in tradeInfo.detailArrayList"
+          :key="shop.skuId"
         >
           <li>
-            <img :src="order.imgUrl" alt="" style="width:100px;height:100px" />
+            <img :src="shop.imgUrl" alt="" style="width: 100px" />
           </li>
           <li>
-            <p>{{ order.skuName }}</p>
+            <p>
+              {{ shop.skuName }}
+            </p>
             <h4>7天无理由退货</h4>
           </li>
           <li>
-            <h3>￥{{ order.orderPrice }}.00</h3>
+            <h3>￥{{ shop.orderPrice }}.00</h3>
           </li>
-          <li>X{{ order.skuNum }}</li>
+          <li>X{{ shop.skuNum }}</li>
           <li>有货</li>
         </ul>
       </div>
@@ -72,10 +77,10 @@
       <ul>
         <li>
           <b
-            ><i>{{ orderInfo.totalNum }}</i
+            ><i>{{ tradeInfo.totalNum }}</i
             >件商品，总商品金额</b
           >
-          <span>¥{{ orderInfo.totalAmount }}.00</span>
+          <span>¥{{ tradeInfo.totalAmount }}.00</span>
         </li>
         <li>
           <b>返现：</b>
@@ -89,17 +94,18 @@
     </div>
     <div class="trade">
       <div class="price">
-        应付金额: <span>¥{{ orderInfo.totalAmount }}.00</span>
+        应付金额:　<span>¥{{ tradeInfo.totalAmount }}.00</span>
       </div>
       <div class="receiveInfo">
         寄送至:
-        <span>{{ userDefaultAddress.fullAddress }}</span>
-        收货人：<span>{{ userDefaultAddress.consignee }}</span>
-        <span>{{ userDefaultAddress.phoneNum }}</span>
+        <span>{{ defaultUser.fullAddress }}</span>
+        收货人：<span>{{ defaultUser.consignee }}</span>
+        <span>{{ defaultUser.phoneNum }}</span>
       </div>
     </div>
     <div class="sub clearFix">
-      <a class="subBtn" @click="submitOrder">提交订单</a>
+      <!-- 提交订单这里不能用声明式导航，需要提交数据（付款人名称、电话、地址等）给服务器 -->
+      <a class="subBtn" @click="submitInfo">提交订单</a>
     </div>
   </div>
 </template>
@@ -110,59 +116,82 @@ export default {
   name: "Trade",
   data() {
     return {
-      //收集买家的留言信息
       msg: "",
-      //订单号
-      orderId: "",
+      // 服务器数据好像没有了，自己写一个就行，发送请求的不改，所以还是会报错
+      address:[
+        {
+          consignee:"张三",
+          fullAddress:"上海",
+          isDefault:1,
+          phoneNum:1111111,
+        },
+        {
+          consignee:"李四",
+          fullAddress:"北京",
+          isDefault:0,
+          phoneNum:2222222,
+        }
+      ]
     };
   },
-  //生命周期函数:挂载完毕
   mounted() {
-    this.$store.dispatch("getUserAddress");
-    this.$store.dispatch("getOrderInfo");
+    this.$store.dispatch("getAddress");
+    this.$store.dispatch("getShopInfo");
+    // this.getAddress();
+    // this.getShopInfo();
+  },
+  methods: {
+    //获取用户地址信息
+    // getAddress() {
+    //   this.$store.dispatch("getAddress");
+    // },
+    //获取商品清单的数据
+    // getShopInfo() {
+    //   this.$store.dispatch("getShopInfo");
+    // },
+    //修改默认地址
+    changeDefault(user) {
+      //排他操作
+      //全部用户信息isDefault = 0；
+      this.address.forEach((item) => {
+        item.isDefault = "0";
+      });
+      user.isDefault = "1";
+    },
+    //提交订单
+    async submitInfo() {
+      //整理参数:交易编码
+      let tradeNo = this.tradeInfo.tradeNo;
+      let data = {
+        consignee: this.defaultUser.consignee, //付款人的名字
+        consigneeTel: this.defaultUser.phoneNum, //付款人的手机号
+        deliveryAddress: this.defaultUser.fullAddress, //付款人收货地址
+        paymentWay: "ONLINE", //支付方式都是在线支付
+        orderComment: this.msg, //买家留言
+        orderDetailList: this.tradeInfo.detailArrayList, //购物车商品信息
+      };
+
+      //发请求:提交订单
+      try {
+        await this.$store.dispatch("submitInfo", { tradeNo, data });
+        //将来提交订单成功【订单ID生成】，路由跳转pay页面，进行支付
+        this.$router.push({path:'/pay',query:{orderId:this.orderId}});
+        
+      } catch (error) {
+        alert(error.message);
+      }
+    },
   },
   computed: {
     ...mapState({
-      addressInfo: (state) => state.trade.address,
-      orderInfo: (state) => state.trade.orderInfo,
+      address: (state) => state.trade.address,
+      tradeInfo: (state) => state.trade.tradeInfo,
+      orderId:state=>state.trade.payId
     }),
-    //将来提交订单最终选中地址
-    userDefaultAddress() {
-      //find:查找数组当中符合条件的元素返回，最为最终结果
-      return this.addressInfo.find((item) => item.isDefault == 1) || {};
-    },
-  },
-  methods: {
-    //修改默认地址
-    changeDefault(address, addressInfo) {
-      //全部的isDefault为零
-      addressInfo.forEach((item) => (item.isDefault = 0));
-      address.isDefault = 1;
-    },
-    //提交订单
-    async submitOrder() {
-      //交易编码
-      let { tradeNo } = this.orderInfo;
-      //其余的六个参数
-      let data = {
-        consignee: this.userDefaultAddress.consignee, //最终收件人的名字
-        consigneeTel: this.userDefaultAddress.phoneNum, //最终收件人的手机号
-        deliveryAddress: this.userDefaultAddress.fullAddress, //收件人的地址
-        paymentWay: "ONLINE", //支付方式
-        orderComment: this.msg, //买家的留言信息
-        orderDetailList: this.orderInfo.detailArrayList, //商品清单
-      };
-      //需要带参数的：tradeNo
-      let result = await this.$API.reqSubmitOrder(tradeNo, data);
-      //提交订单成功
-      if (result.code == 200) {
-        this.orderId = result.data;
-        //路由跳转 + 路由传递参数
-        this.$router.push('/pay?orderId='+this.orderId);
-       //提交的订单失败
-      } else {
-        alert(result.data);
-      }
+    //默认收件人的信息计算出来
+    defaultUser() {
+      //find:数组的方法,找到复合条件的元素.回调需要返回布尔值【真|假】，真即为查找结果【如果多个结果都为真，取其中一个】
+      return this.address.find((item) => item.isDefault == "1") || {};
     },
   },
 };

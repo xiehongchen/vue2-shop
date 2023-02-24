@@ -1,16 +1,17 @@
 <template>
   <div>
     <h2>BABA有存款: {{ money }}</h2>
-    <button @click="JieQianFromXM(100)">找小明借钱100</button><br />
-    <button @click="JieQianFromXH(150)">找小红借钱150</button><br />
-    <button @click="JieQianAll(200)">找所有孩子借钱200</button><br />
-    <button @click="SendInfo">我是baba</button>
+    <button @click="borrowFromXM">找小明借钱100</button><br />
+    <button @click="borrowFromXH">找小红借钱150</button><br />
+    <button @click="borrowFromAll">找所有孩子借钱200</button><br />
+
     <br />
-    <!-- 小明 -->
-    <Son ref="xm" />
+    <!-- ref:可以获取到真实DOM节点，可以获取相应组件的实例VC -->
+    <!-- ref也算在一种通信手段:在父组件中可以获取子组件(属性|方法) -->
+    <Son ref="son" />
+
     <br />
-    <!-- 小红 -->
-    <Daughter ref="xh"/>
+    <Daughter ref="dau" />
   </div>
 </template>
 
@@ -27,28 +28,23 @@ export default {
   },
 
   methods: {
-    //找儿子借钱
-    JieQianFromXM(money) {
-      //父组件的数据累加100
-      this.money += money;
-      this.$refs.xm.money -= money;
+    //小明借用100元
+    borrowFromXM() {
+      //父亲的钱加上100元
+      this.money += 100;
+      this.$refs.son.money -= 100;
     },
-    JieQianFromXH(money) {
-      //父组件的数据累加150
-      this.money += money;
-      this.$refs.xh.money -= money;
+    borrowFromXH() {
+      this.money += 150;
+      this.$refs.dau.money -= 150;
     },
-    JieQianAll(money){
-      this.money += 2*money;
-      this.$children.forEach(item=>item.money-=money);
-      //不建议用枚举获取子组件：因为没办法确定到底是那个子组件
-      // this.$children[0].money -=money;
-
+    borrowFromAll() {
+      //VC:$children属性,可以获取当前组件的全部子组件[这个属性在用的时候很少用索引值获取子组件，因为没有办法确定数组里面的元素到底是哪一个子组件]
+      this.money += 400;
+      this.$children.forEach((item) => {
+          item.money -= 200;
+      });
     },
-    SendInfo(){
-      //在父组件中获取到子组件（数据+方法）
-      this.$refs.xm.tinghua();
-    }
   },
 
   components: {
@@ -58,4 +54,5 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+</style>

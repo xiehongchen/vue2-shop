@@ -1,7 +1,7 @@
 <template>
   <div style="background: #ccc; height: 50px;">
     <h3>儿子小明: 有存款: {{money}}</h3>
-    <button @click="geiQian(50)">给BABA钱: 50</button>
+    <button @click="giveMoney">给BABA钱: 50</button>
   </div>
 </template>
 
@@ -15,12 +15,10 @@ export default {
   },
 
   methods: {
-    tinghua(){
-        console.log('我是小明，我听爸爸的话');
-    },
-    geiQian(money){
-       this.money-=money;
-       this.$parent.money+=money;
+    giveMoney(){
+       this.money-=50;
+       //$parent,VC一个属性,可以获取当前组件(属性|方法)
+       this.$parent.money+=50;
     }
   }
 }

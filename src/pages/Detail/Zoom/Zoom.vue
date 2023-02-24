@@ -1,57 +1,66 @@
 <template>
   <div class="spec-preview">
-    <img :src="imgObj.imgUrl" />
+    <img :src="bigObj.imgUrl" />
+    <!-- 绑定鼠标移动事件,绑定事件 -->
     <div class="event" @mousemove="handler"></div>
     <div class="big">
-      <img :src="imgObj.imgUrl" ref="big"/>
+      <!-- 放大图片 -->
+      <img :src="bigObj.imgUrl" ref="big" />
     </div>
-    <!-- 遮罩层 -->
+    <!-- 遮罩网,也就是放大镜部分 -->
     <div class="mask" ref="mask"></div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
   name: "Zoom",
-  props: ["skuImageList"],
-  data() {
+  data(){
     return {
-      currentIndex:0
+      index:0
     }
   },
-  computed:{
-    imgObj(){
-      return this.skuImageList[this.currentIndex]||{}
-    }
-  },
-  mounted(){
-    //全局事件总线：获取兄弟组件传递过来的索引值
-    this.$bus.$on('getIndex',(index)=>{
-        //修改当前响应式数据
-        this.currentIndex = index;
-    })
-  },
-  methods: {
-    handler(event) {
-      let mask = this.$refs.mask;
-      let big = this.$refs.big;
-      let left = event.offsetX - mask.offsetWidth/2;
-      let top = event.offsetY - mask.offsetHeight/2;
-      //约束范围
-      if(left <=0) left = 0;
-      if(left >=mask.offsetWidth) left = mask.offsetWidth;
-      if(top<=0)top = 0;
-      if(top>=mask.offsetHeight) top = mask.offsetHeight;
-      //修改元素的left|top属性值
-      mask.style.left = left+'px';
-      mask.style.top = top +'px';
-      big.style.left = - 2 * left+'px';
-      big.style.top = -2 * top +'px';
-
-
+  computed: {
+    ...mapGetters(["skuInfo"]),
+    //比如:服务器的数据没有回来,skuInfo空对象,如果空对象.skuImageList->undefined
+    skuImageList() {
+      return this.skuInfo.skuImageList || [];
+    },
+    // 显示图片
+    bigObj() {
+      return this.skuImageList[this.index] || {};
     },
   },
-
+  methods: {
+    handler(e) {
+      //获取蒙板
+      let mask = this.$refs.mask;
+      let big = this.$refs.big;
+      //计算蒙板的left|top数值
+      // e.offsetX表示鼠标相对于事件源的X方向的距离,mask.offsetWidth/2表示遮罩网的宽度的一半
+      // 二者相减即可得到遮罩网到外边框的距离
+      let l = e.offsetX - mask.offsetWidth / 2;
+      let t = e.offsetY - mask.offsetHeight / 2;
+      //约束蒙板的上下左右范围
+      if (l < 0) l = 0;
+      if (l > mask.offsetWidth) l = mask.offsetWidth;
+      if (t < 0) t = 0;
+      if (t > mask.offsetHeight) t = mask.offsetHeight;
+      // 修改mask和big的位置
+      mask.style.left = l + "px";
+      mask.style.top = t + "px";
+      // 因为放大图片为200%，因此需要2
+      big.style.left = -2 * l + "px";
+      big.style.top = -2 * t + "px";
+    },
+  },
+  mounted(){
+    //接受兄弟组件传递过来的索引值
+    this.$bus.$on('sendIndex',(index)=>{
+        this.index = index;
+    })
+  }
 };
 </script>
 

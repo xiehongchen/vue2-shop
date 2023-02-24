@@ -3,51 +3,76 @@
     <div class="swiper-wrapper">
       <div
         class="swiper-slide"
-        v-for="(slide, index) in skuImageList"
-        :key="slide.id"
+        v-for="(slide, index) in skuInfo.skuImageList"
+        :key="index"
       >
-        <img :src="slide.imgUrl" :class="{active:currentIndex==index}" @click="changeCurrentIndex(index)"/>
+        <img
+          :src="slide.imgUrl"
+          :class="{ active: currentIndex == index }"
+          @click="handler(index)"
+        />
       </div>
     </div>
-    <div class="swiper-button-next"></div>
-    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next" @click="add"></div>
+    <div class="swiper-button-prev" @click="minus"></div>
   </div>
 </template>
 
 <script>
 import Swiper from "swiper";
+import "swiper/css/swiper.min.css";
+import { mapGetters } from "vuex";
 export default {
   name: "ImageList",
   data() {
     return {
-      currentIndex:0
-    }
+      //控制小图类名的索引值
+      currentIndex: 0,
+    };
   },
-  props: ["skuImageList"],
+  computed: {
+    ...mapGetters(["skuInfo"]),
+  },
   watch: {
-    //监听数据:可以保证数据一定ok，但是不能保证v-for遍历结构是否完事。
-    skuImageList(newValue, oldValue) {
+    skuInfo() {
+      //保证数据发生修改,页面结构再次渲染完毕。在初始化Swiper实例
       this.$nextTick(() => {
-        new Swiper(this.$refs.cur, {
+        //初始化Swiper类的实例
+        var mySwiper = new Swiper(this.$refs.cur, {
+          //设置轮播图防线
+          direction: "horizontal",
+          // loop:true,
           // 如果需要前进后退按钮
           navigation: {
             nextEl: ".swiper-button-next",
             prevEl: ".swiper-button-prev",
           },
-          //显示几个图片设置
+          //展示区域同时展示三张图片
           slidesPerView: 3,
-          //每一次切换图片个数
           slidesPerGroup:1
         });
       });
     },
   },
   methods: {
-    changeCurrentIndex(index){
-      //修改响应式数据
+    //小图的点击事件
+    handler(index) {
+      //修改响应式数据存储当前用户点击的索引值
       this.currentIndex = index;
-      //通知兄弟组件：当前的索引值为几
-      this.$bus.$emit('getIndex',this.currentIndex);
+      //全局事件总线，通知兄弟当前图片的索引值
+      this.$bus.$emit("sendIndex", index);
+    },
+    minus() {
+      this.currentIndex--;
+      if (this.currentIndex <= 0) this.currentIndex = 0;
+      this.$bus.$emit("sendIndex", this.currentIndex);
+    },
+    add() {
+      this.currentIndex++;
+      if (this.currentIndex >= this.skuInfo.skuImageList.length - 1) {
+        this.currentIndex = this.skuInfo.skuImageList.length - 1;
+      }
+      this.$bus.$emit("sendIndex", this.currentIndex);
     },
   },
 };

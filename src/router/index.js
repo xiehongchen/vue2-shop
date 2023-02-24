@@ -1,108 +1,121 @@
-//引入vue-router路由插件
+//配置路由
+//第一步：引入插件、安装插件
 import VueRouter from "vue-router";
-//引入Vue
 import Vue from "vue";
-import routes from "./routes";
-//使用插件
 Vue.use(VueRouter);
-//引入store
-import store from "@/store";
-//需要重写VueRouter.prototype原型对象身上的push|replace方法
-//先把VueRouter.prototype身上的push|replace方法进行保存一份
+//引入路由相关的配置项
+import routes from './routes'
+
+//引入仓库
+import store from '@/store'
+//把人家原型对象的push方法进行保存
 let originPush = VueRouter.prototype.push;
 let originReplace = VueRouter.prototype.replace;
-//重写VueRouter.prototype身上的push方法了
-VueRouter.prototype.push = function(location, resolve, reject) {
-  //第一个形参：路由跳转的配置对象（query|params）
-  //第二个参数：undefined|箭头函数（成功的回调）
-  //第三个参数:undefined|箭头函数（失败的回调）
-  if (resolve && reject) {
-    //push方法传递第二个参数|第三个参数（箭头函数）
-    //originPush：利用call修改上下文，变为(路由组件.$router)这个对象，第二参数：配置对象、第三、第四个参数：成功和失败回调函数
-    originPush.call(this, location, resolve, reject);
-  } else {
-    //push方法没有产地第二个参数|第三个参数
-    originPush.call(
-      this,
-      location,
-      () => {},
-      () => {}
-    );
-  }
-};
-//重写VueRouter.prototype身上的replace方法了
-VueRouter.prototype.replace = function(location, resolve, reject) {
-  if (resolve && reject) {
-    originReplace.call(this, location, resolve, reject);
-  } else {
-    originReplace.call(
-      this,
-      location,
-      () => {},
-      () => {}
-    );
-  }
-};
-//对外暴露VueRouter类的实例
-let router = new VueRouter({
-  //配置路由
-  //第一:路径的前面需要有/(不是二级路由)
-  //路径中单词都是小写的
-  //component右侧V别给我加单引号【字符串：组件是对象（VueComponent类的实例）】
-  routes,
-  //滚动行为
-  scrollBehavior(to, from, savedPosition) {
-    //返回的这个y=0，代表的滚动条在最上方
-    return { y: 0 };
-  },
-});
+//VueRouter.prototype原型对象添加一个方法
+//location:路由跳转相关的信息
+VueRouter.prototype.push = function (location, resolve, reject) {
+    //当前函数this：即为VueRouter类的实例
+    //相当于push方法里面this，是windows【完犊子了】
+    //利用人家push方法实现路由跳转，保证push里面this,应该vueRouter类的实例
 
-//全局守卫：前置守卫（在路由跳转之间进行判断）
-router.beforeEach(async (to, from, next) => {
-   //to:获取到要跳转到的路由信息
-   //from：获取到从哪个路由跳转过来来的信息
-   //next: next() 放行  next(path) 放行  
-   //方便测试 统一放行
-  //  next();
-  //获取仓库中的token-----可以确定用户是登录了
-   let token  = store.state.user.token;
-   let name = store.state.user.userInfo.name;
-   //用户登录了
-   if(token){
-     //已经登录而且还想去登录------不行
-     if(to.path=="/login"||to.path=='/register'){
-        next('/');
-     }else{
-       //已经登陆了,访问的是非登录与注册
-       //登录了且拥有用户信息放行
-       if(name){
-         next();
-       }else{
-         //登陆了且没有用户信息
-         //在路由跳转之前获取用户信息且放行
-         try {
-          await store.dispatch('getUserInfo');
-          next();
-         } catch (error) {
-           //token失效从新登录
-           await store.dispatch('userLogout');
-           next('/login')
-         }
-       }
-     }
-   }else{
-      //未登录：不能去交易相关、不能去支付相关【pay|paysuccess】、不能去个人中心
-      //未登录去上面这些路由-----登录
-      let toPath = to.path;
-      if(toPath.indexOf('/trade')!=-1 || toPath.indexOf('/pay')!=-1||toPath.indexOf('/center')!=-1){
-        //把未登录的时候向去而没有去成的信息，存储于地址栏中【路由】
-        next('/login?redirect='+toPath);
-      }else{
-         //去的不是上面这些路由（home|search|shopCart）---放行
-         next();
-      }
-    
-   }
+    //面试:函数apply与call区别?
+    //相同的地方:都可以篡改函数里面this
+    //不同的地方:apply传递参数 数组  call传递参数 逗号分割
+
+    if (resolve && reject) {
+        //代表真:代表着两个形参接受参数【箭头函数】
+        // 使用call，改变上下文，没使用之前为window，使用之后为VueRouter类的实例
+        originPush.call(this, location, resolve, reject);
+    } else {
+        originPush.call(this, location, () => { }, () => { });
+    }
+}
+
+
+VueRouter.prototype.replace = function (location, resolve, reject) {
+    if (resolve && reject) {
+        //代表真:代表着两个形参接受参数【箭头函数】
+        originReplace.call(this, location, resolve, reject);
+    } else {
+        originReplace.call(this, location, () => { }, () => { });
+    }
+}
+
+//第二步:暴露VueRouter类的实例
+//对外暴露一个路由器,实质是VueRouter类的实例,一个路由器可以管理多个路由
+const router = new VueRouter({
+    //配置路由
+    routes,
+    //设置滚动条的位置
+    //使用前端路由，当切换到新路由时，想要页面滚到顶部，或者是保持原先的滚动位置，就像重新加载页面那样
+    scrollBehavior() {
+        //滚动行为这个函数,需要有返回值,返回值为一个对象。
+        //经常可以设置滚动条x|y位置 [x|y数值的设置一般最小是零]
+        //y:0 表示滚动条在最上方
+        return { y: 0 };
+    }
 });
 
 export default router;
+
+
+//全局守卫:只要项目中有任何路由变化，全局守卫都会进行拦截【符合条件走你，不符合条件不能访问】
+
+//全局守卫:全局前置守卫【访问之前进行触发】
+
+//全局前置守卫
+router.beforeEach(async (to, from, next) => {
+    //to:去的那个路由的信息
+    //from:从那个路由而来的信息
+    //next:放行函数!!!!!! 
+    //第一种：next(),放行函数，放行到它想去的路由！！！
+    //第二种:next(path),守卫指定放行到那个路由去?
+
+    //用户是否登录:取决于仓库里面是否有token！！！
+    //每一次路由跳转之前需要用有用户信息在跳转,没有发请求获取用户信息在跳转！！！！
+    //token
+    let hasToken = store.state.user.token;
+    //用户信息
+    let hasNickName = store.state.user.nickName;
+    //用户登录
+    if (hasToken) {
+        //用户登录了,不能去login
+        if (to.path == "/login") {
+            next('/home');
+        } else {
+            //用户登陆了,而且还有用户信息【去的并非是login】
+            if (hasNickName) {
+                next();
+            } else {
+                //用户登陆了,但是没有用户信息 
+                try {
+                    //发请求获取用户信息以后在放行
+                    await store.dispatch('getUserInfo');
+                    next();
+                } catch (error) {
+                    //用户没有信息，还携带token发请求获取用户信息【失败】
+                    //token【学生证失效了】
+                    //token失效:本地清空数据、服务器的token通知服务器清除
+                    await store.dispatch('logout');
+                    //回到登录页，重新获取一个新的token
+                    next('/login');
+                }
+            }
+        }
+    } else {
+        //用户未登录||目前的判断都是放行.将来这里会'回手掏'增加一些判断
+        //用户未登录:不能进入/trade、/pay、/paysuccess、/center、/center/myorder  /center/teamorder
+        let toPath = to.path;
+        if (toPath.indexOf('trade') != -1 || toPath.indexOf('pay') != -1 || toPath.indexOf('center') != -1) {
+            next('/login?redirect='+toPath);
+        } else {
+            next();
+        }
+    }
+});
+
+
+//全局后置守卫,几乎不用
+// router.afterEach((to,from)=>{
+//   console.log('后置守卫');
+// })

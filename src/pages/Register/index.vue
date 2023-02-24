@@ -4,70 +4,46 @@
     <div class="register">
       <h3>
         注册新用户
-        <span class="go"
-          >我有账号，去 <a href="login.html" target="_blank">登陆</a>
-        </span>
+        <span class="go">我有账号，去 <a>登陆</a> </span>
       </h3>
+      <!-- 手机号 -->
       <div class="content">
         <label>手机号:</label>
-        <input
-          placeholder="请输入你的手机号"
-          v-model="phone"
-          name="phone"
-          v-validate="{ required: true, regex: /^1\d{10}$/ }"
-          :class="{ invalid: errors.has('phone') }"
-        />
-        <span class="error-msg">{{ errors.first("phone") }}</span>
+        <input type="text" placeholder="请输入你的手机号" v-model="phone" />
+        <span class="error-msg">错误提示信息</span>
       </div>
+      <!-- 验证码 -->
       <div class="content">
         <label>验证码:</label>
-        <input
-          placeholder="请输入你的验证码"
-          v-model="code"
-          name="code"
-          v-validate="{ required: true, regex: /^\d{6}$/ }"
-          :class="{ invalid: errors.has('code') }"
-        />
-        <button style="width:100px;height:38px" @click="getCode">
-          获取验证码
-        </button>
-        <span class="error-msg">{{ errors.first("code") }}</span>
+        <input type="text" placeholder="请输入验证码" v-model="code" />
+        <button style="height: 38px" @click="getCode">获取验证码</button>
+        <span class="error-msg">错误提示信息</span>
       </div>
+      <!-- 登录密码 -->
       <div class="content">
         <label>登录密码:</label>
         <input
-          placeholder="请输入你的密码"
+          type="text"
+          placeholder="请输入你的登录密码"
           v-model="password"
-          name="password"
-          v-validate="{ required: true, regex: /^[0-9A-Za-z]{8,20}$/ }"
-          :class="{ invalid: errors.has('password') }"
         />
-        <span class="error-msg">{{ errors.first("password") }}</span>
+        <span class="error-msg">错误提示信息</span>
       </div>
+      <!-- 确认密码 -->
       <div class="content">
         <label>确认密码:</label>
-        <input
-          placeholder="请输入确认密码"
-          v-model="password1"
-          name="password1"
-          v-validate="{ required: true, is: password }"
-          :class="{ invalid: errors.has('password1') }"
-        />
-        <span class="error-msg">{{ errors.first("password1") }}</span>
+        <input type="text" placeholder="请输入确认密码" v-model="password1" />
+        <span class="error-msg">错误提示信息</span>
       </div>
+      <!-- 勾选协议 -->
       <div class="controls">
-        <input
-          type="checkbox"
-          v-model="agree"
-          name="agree"
-          v-validate="{ required: true, tongyi: true }"
-          :class="{ invalid: errors.has('agree') }"
-        />
+        <input name="m1" type="checkbox" :checked="agree" />
         <span>同意协议并注册《尚品汇用户协议》</span>
-        <span class="error-msg">{{ errors.first("agree") }}</span>
+        <span class="error-msg">错误提示信息</span>
       </div>
+      <!-- 注册按钮 -->
       <div class="btn">
-        <button @click="userRegister">完成注册</button>
+        <button @click="register">完成注册</button>
       </div>
     </div>
 
@@ -94,46 +70,47 @@ export default {
   name: "Register",
   data() {
     return {
-      // 收集表单数据--手机号
+      //手机号
       phone: "",
-      //验证码
+      //存储验证码
       code: "",
-      //密码
+      //登录密码
       password: "",
       //确认密码
       password1: "",
-      //是否同意
+      //协议收集
       agree: true,
     };
   },
   methods: {
-    //获取验证码
+    //获取验证码按钮的回调
     async getCode() {
-      //简单判断一下---至少用数据
-      try {
-        //如果获取到验证码
-        const { phone } = this;
-        phone && (await this.$store.dispatch("getCode", phone));
-        //将组件的code属性值变为仓库中验证码[验证码直接自己填写了]
-        this.code = this.$store.state.user.code;
-      } catch (error) {}
-    },
-    //用户注册
-    async userRegister() {
-      const success = await this.$validator.validateAll();
-      //全部表单验证成功，在向服务器发请求，进行祖册
-      //只要有一个表单没有成功，不会发请求
-      if (success) {
+      const { phone } = this;
+      //先不处理表单验证业务
+      if (phone) {
         try {
-          const { phone, code, password, password1 } = this;
-          await this.$store.dispatch("userRegister", {
-            phone,
-            code,
-            password,
-          });
-          //注册成功进行路由的跳转
-          this.$router.push("/login");
+          //获取验证码成功
+          await this.$store.dispatch("getCode", phone);
+          //修改VC身上的code属性,让验证码自动展示
+          // 实际开发当中会是以发送短信的形式，然后再让客户输入验证码
+          this.code = this.$store.state.user.code;
+        } catch (error) {}
+      }
+    },
+    //注册按钮的回调
+    async register() {
+      //解构出参数
+      const { phone, code, password, password1 } = this;
+      //目前不做表单验证
+      if (phone && code && password == password1) {
+        //通知vuex发请求，进行用户的注册
+        try {
+          //注册成功
+          await this.$store.dispatch("registerUser", { phone, code, password });
+          //让用户跳转到登录页面进行登录
+          this.$router.push('/login');
         } catch (error) {
+          //注册失败
           alert(error.message);
         }
       }

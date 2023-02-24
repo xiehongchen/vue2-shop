@@ -1,11 +1,7 @@
 <template>
   <div class="swiper-container" ref="cur">
     <div class="swiper-wrapper">
-      <div
-        class="swiper-slide"
-        v-for="(carousel, index) in list"
-        :key="carousel.id"
-      >
+      <div class="swiper-slide" v-for="(carousel, index) in list" :key="carousel.id">
         <img :src="carousel.imgUrl" />
       </div>
     </div>
@@ -40,6 +36,16 @@ export default {
               //点击小球的时候也切换图片
               clickable: true,
             },
+            //自动轮播
+            autoplay: {
+              delay: 1000,
+              //新版本的写法：目前是5版本
+              // pauseOnMouseEnter: true,
+              //如果设置为true，当切换到最后一个slide时停止自动切换
+              stopOnLastSlide: true,
+              //用户操作swiper之后，是否禁止autoplay
+              disableOnInteraction: false,
+            },
             // 如果需要前进后退按钮
             navigation: {
               nextEl: ".swiper-button-next",
@@ -53,4 +59,6 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>

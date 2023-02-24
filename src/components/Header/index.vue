@@ -1,113 +1,134 @@
 <template>
-  <header class="header">
-    <!-- 头部的第一行 -->
-    <div class="top">
-      <div class="container">
-        <div class="loginList">
-          <p>尚品汇欢迎您！</p>
-          <!-- 没有用户名：未登录 -->
-          <p v-if="!userName">
-            <span>请</span>
-            <!-- 声明式导航：router-link务必要有to属性 -->
-            <router-link to="/login">登录</router-link>
-            <router-link class="register" to="/register">免费注册</router-link>
-          </p>
-          <!-- 登录了 -->
-          <p v-else>
-                <a>{{userName}}</a>
-                <a class="register" @click="logout">退出登录</a>
-          </p>
-        </div>
-        <div class="typeList">
-          <router-link to="/center/myorder">我的订单</router-link>
-          <router-link to="/shopcart">我的购物车</router-link>
-          <a href="###">我的尚品汇</a>
-          <a href="###">尚品汇会员</a>
-          <a href="###">企业采购</a>
-          <a href="###">关注尚品汇</a>
-          <a href="###">合作招商</a>
-          <a href="###">商家后台</a>
+  <div>
+    <header class="header">
+      <!-- 头部的第一行 -->
+      <div class="top">
+        <div class="container">
+          <div class="loginList">
+            <p>尚品汇欢迎您！</p>
+            <!-- 没有登录：显示登录与注册 -->
+            <p v-if="!$store.state.user.nickName">
+              <span>请</span>
+              <!-- <a href="###">登录</a> -->
+              <!-- 
+                声明式导航,当然你也可以使用编程式导航,因为不管是那个导航，都可以实现路由跳转，
+                但是最后为什么选择声明式导航，没有任何业务、逻辑
+               -->
+              <router-link to="/login">登录</router-link>
+              <router-link class="register" to="/register">注册</router-link>
+            </p>
+            <!-- 如果登录显示的是用户名字与退出登录 -->
+            <p v-else>
+              <a>{{$store.state.user.nickName}}</a>
+              <a class="register" @click="logout">退出登录</a>
+            </p>
+          </div>
+          <div class="typeList">
+            <router-link to="/center">我的订单</router-link>
+            <router-link to="/shopcart">我的购物车</router-link>
+            <a href="###">我的尚品汇</a>
+            <a href="###">尚品汇会员</a>
+            <a href="###">企业采购</a>
+            <a href="###">关注尚品汇</a>
+            <a href="###">合作招商</a>
+            <a href="###">商家后台</a>
+          </div>
         </div>
       </div>
-    </div>
-    <!--头部第二行 搜索区域-->
-    <div class="bottom">
-      <h1 class="logoArea">
-        <!-- router-link组件本省就是一个a标签 -->
-        <router-link to="/home" class="logo">
-          <img src="./images/logo.png" alt="" />
-        </router-link>
-      </h1>
-      <div class="searchArea">
-        <form action="###" class="searchForm">
-          <input
-            type="text"
-            id="autocomplete"
-            class="input-error input-xxlarge"
-            v-model="keyword"
-          />
-          <button
-            class="sui-btn btn-xlarge btn-danger"
-            type="button"
-            @click="goSearch"
-          >
-            搜索
-          </button>
-        </form>
+      <!--头部第二行 搜索区域-->
+      <div class="bottom">
+        <h1 class="logoArea">
+          <router-link class="logo" to="/home">
+            <img src="./images/logo.png" alt="" />
+          </router-link>
+        </h1>
+        <div class="searchArea">
+          <form action="###" class="searchForm">
+            <input
+              type="text"
+              id="autocomplete"
+              class="input-error input-xxlarge"
+              v-model="keyword"
+            />
+            <!-- 编程式导航:因为有业务 -->
+            <button
+              class="sui-btn btn-xlarge btn-danger"
+              type="button"
+              @click="goSearch"
+            >
+              搜索
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
+  </div>
 </template>
 
 <script>
 export default {
-  name: "",
+  //给组件起一个名字,开发者工具中显示这个组件的时候，显示的就是这个名字
+  name: "Header",
   data() {
     return {
-      //响应式数据，用于收集表单元素文本内容
+      //收集用户输入的关键字
       keyword: "",
     };
   },
   methods: {
-    //搜索按钮的事件处理函数，用于跳转到search路由组件当中
+    //搜索按钮的回调
     goSearch() {
-      //代表的是如果有query参数也带过去
-      if (this.$route.query) {
-        let loction = {
-          name: "search",
-          params: { keyword: this.keyword || undefined },
-        };
-        loction.query = this.$route.query;
-        this.$router.push(loction);
+      //路由的跳转,采用的是编程式导航.
+      //路由传递参数
+
+      //第一种传递query参数
+      // this.$router.push({path:'/search',query:{keyword:this.keyword}});
+
+      //第二种传递params参数 [一定要注意,面试的时候经常问]
+      // this.$router.push({name:'search',params:{keyword:this.keyword}})
+
+      //第三种传递query+params
+      // this.$router.push({
+      //   name: "search",
+      //   params: { keyword: this.keyword },
+      //   query: { keyword: "ABC" },
+      // });
+
+      //验证Vue-Router引入Promise技术,最笨的方法,给push传递第二个、第三个参数【回调函数】
+      //下面这种写法：治标不治本！！！！
+      // let result = this.$router.push({name: "search",params: { keyword: this.keyword|| undefined}},()=>{},()=>{});
+
+      //问题1:push方法,里面this是谁? vueRouter类的实例
+      // this.$router.push({name:'search',params:{keyword:this.keyword}});
+      //问题2:push方法里面的this是谁?windows
+      // let result = this.$router.push;
+      // result({name:'search',params:{keyword:this.keyword}})
+
+      //点击搜索按钮之前,如果路径当中有query参数,需要携带给search
+
+      let locations = {
+        name: "search",
+        params: { keyword: this.keyword || undefined },
+      };
+      //确定路径当中有query参数
+      if (this.$route.query.categoryName) {
+        locations.query = this.$route.query;
       }
+
+      this.$router.push(locations);
     },
-    //退出登录
-    async logout(){
-      //退出登录需要做的事情
-      //1:需要发请求，通知服务器退出登录【清除一些数据：token】
-      //2:清除项目当中的数据【userInfo、token】
-        try {
-          //如果退出成功
-          await this.$store.dispatch('userLogout');
-          //回到首页
-          this.$router.push('/home');
-        } catch (error) {
-          
-        }
+    //退出登录的按钮的回调
+    logout(){
+       //派遣action退出登录
+       this.$store.dispatch('logout');
     }
   },
   mounted() {
-    //通过全局事件总线清除关键字
-    this.$bus.$on("clear", () => {
+    //清除关键字
+    this.$bus.$on("clearKeyword", () => {
       this.keyword = "";
     });
   },
-  computed:{
-    //用户名信息
-    userName(){
-      return this.$store.state.user.userInfo.name;
-    }
-  }
 };
 </script>
 

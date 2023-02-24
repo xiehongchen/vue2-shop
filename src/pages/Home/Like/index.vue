@@ -62,7 +62,7 @@ export default {
 </script>
 
 <style scoped lang="less">
- .like {
+  .like {
         margin-top: 15px;
 
         .py-container {

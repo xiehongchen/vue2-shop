@@ -6,7 +6,7 @@
         <div class="loginform">
           <ul class="tab clearFix">
             <li>
-              <a href="##" style="border-right: 0;">扫描登录</a>
+              <a href="##" style="border-right: 0">扫描登录</a>
             </li>
             <li>
               <a href="##" class="current">账户登录</a>
@@ -14,7 +14,8 @@
           </ul>
 
           <div class="content">
-            <form>
+            <!-- 登录密码与账号输入的地方 -->
+            <form action="##">
               <div class="input-text clearFix">
                 <span></span>
                 <input
@@ -38,7 +39,13 @@
                 </label>
                 <span class="forget">忘记密码？</span>
               </div>
-              <button class="btn" @click.prevent="userLogin">
+              <!-- 
+                电脑登录按钮：会触发form表单默认行为
+                stop:阻止事件的传播
+                prevent:阻止默认事件
+                once:事件仅仅触发一次
+              -->
+              <button class="btn" @click.prevent="login">
                 登&nbsp;&nbsp;录
               </button>
             </form>
@@ -81,20 +88,24 @@ export default {
   name: "Login",
   data() {
     return {
+      //收集账号与密码
       phone: "",
       password: "",
     };
   },
   methods: {
-    //登录的回调函数
-    async userLogin() {
+    //登录按钮
+    async login() {
+      //整理参数
+      const { phone, password } = this;
+      //在发登录请求
       try {
         //登录成功
-        const { phone, password } = this;
-        phone&&password&&(await this.$store.dispatch("userLogin", { phone, password }));
-        //登录的路由组件：看路由当中是否包含query参数，有：调到query参数指定路由，没有：调到home
-         let toPath = this.$route.query.redirect||"/home";
-         this.$router.push(toPath);
+        await this.$store.dispatch("userLogin", { phone, password });
+        //登录成功，获取跳转路由
+        let goPath = this.$route.query.redirect||'/home';
+        //跳转到首页
+        this.$router.push(goPath);
       } catch (error) {
         alert(error.message);
       }
@@ -174,7 +185,7 @@ export default {
               width: 37px;
               height: 32px;
               border: 1px solid #ccc;
-              background: url(../../assets/images/icons.png) no-repeat -10px -201px;
+              background: url(~@/assets/icons.png) no-repeat -10px -201px;
               box-sizing: border-box;
               border-radius: 2px 0 0 2px;
             }
